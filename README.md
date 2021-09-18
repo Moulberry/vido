@@ -1,12 +1,12 @@
 # vido - a simple vim-inspired hierachical to-do manager
 
 ## How to build:
-$ git clone https://github.com/Moulberry/vido
-$ cd vido
-$ sudo make clean install 
+$ git clone https://github.com/Moulberry/vido  
+$ cd vido  
+$ sudo make clean install  
 
 ## How to run:
-$ vido
+$ vido  
 
 ## Ensure your todos save/load
 Create the folder `~/.vido` for vido to save it's `task.json` to  
