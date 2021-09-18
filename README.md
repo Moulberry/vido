@@ -45,3 +45,6 @@ General tweaks and keybinds/commands can be set up in `src/config.h`
 If you wish to add functions to be used by keybinds/commands, it is recommended you put the functions in `src/commands.c`  
 Most of the visuals should be customizable through editing `src/render.c`  
 If you wish to modify the functionality of the todo-list (eg. scrolling, saving, etc.), edit `src/vido.c`  
+
+## Patches
+If you have a customization that you would like to share with others; or you would like to see the patches that others have shared, head to https://github.com/Moulberry/vido/wiki/Patches
