@@ -1,6 +1,7 @@
 UNAME_S := $(shell uname -s 2>/dev/null || echo not)
 
-SOURCES = $(sort $(wildcard src/*.c))
+HEADERS = $(sort $(wildcard src/*.h))
+SOURCES = $(sort $(wildcard src/*vido.c))
 OBJECTS = $(SOURCES:.c=.o)
 TARGET  = vido
 DESTDIR =
@@ -26,19 +27,13 @@ endif
 
 LDLIBS   = -l$(CURSES)
 
-all: $(TARGET)
-
-$(TARGET): src
-	$(CC) $(OBJECTS) $(LDLIBS) $(LDFLAGS) -o $(TARGET)
-
-src:
-	$(MAKE) $(MFLAGS) -C src
-
 clean:
 	$(MAKE) -C src clean
 	$(RM) $(TARGET)
 
 install:
+	$(MAKE) $(MFLAGS) -C src
+	$(CC) $(OBJECTS) $(LDLIBS) $(LDFLAGS) -o $(TARGET)
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 	#install -d $(DESTDIR)$(PREFIX)/share/man/man1
