@@ -39,7 +39,6 @@ void render_title() {
 
 void render_task(struct task *task, int32_t *y, int32_t indent, uint32_t has_below);
 void render_body() {
-        update_scroll();
         int32_t y = -scroll_amount;
 
         wclear(body.window);
@@ -57,8 +56,17 @@ void render_controls() {
 
         if(visual_mode) {
                 wattron(controls.window, A_BOLD);
-                wprintw(controls.window, "-- VISUAL --");
+                if(move_mode) {
+			wprintw(controls.window, "-- MOVE --");
+		} else {
+			wprintw(controls.window, "-- VISUAL --");
+		}
                 wattroff(controls.window, A_BOLD);
+
+		if(feedback_msg[0] != '\0') {
+			wmove(controls.window, 0, controls.cols - strlen(feedback_msg));
+			wprintw(controls.window, feedback_msg);
+		}
         } else {
                 if(error_msg[0] != '\0') {
                         waddch(controls.window, ' ');
@@ -67,10 +75,14 @@ void render_controls() {
                         wattroff(controls.window, COLOR_PAIR(2));
                 } else {
                         wprintw(controls.window, buffer);
-
                         wattron(controls.window, COLOR_PAIR(1));
                         waddch(controls.window, ' ');
                         wattroff(controls.window, COLOR_PAIR(1));
+
+			if(feedback_msg[0] != '\0') {
+				wmove(controls.window, 0, controls.cols - strlen(feedback_msg));
+				wprintw(controls.window, feedback_msg);
+			}
                 }
 
         }
@@ -149,9 +161,9 @@ void render_task(struct task *task, int32_t *y, int32_t indent, uint32_t has_bel
 
                 wprintw(body.window, indicator);
 
-                if(task == selected_task) wattron(body.window, COLOR_PAIR(1));
+                if(task->highlighted || task == selected_task) wattron(body.window, COLOR_PAIR(1));
                 wprintw(body.window, "%s", task->name);
-                if(task == selected_task) wattroff(body.window, COLOR_PAIR(1));
+                if(task->highlighted || task == selected_task) wattroff(body.window, COLOR_PAIR(1));
         }
 
         (*y)++;

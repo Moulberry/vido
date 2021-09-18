@@ -35,6 +35,7 @@ struct task {
 	bool expanded; //Whether groups should show their subtasks
 
 	bool is_root;
+	bool highlighted;
 
 	struct task *prev;
 	struct task *next;
@@ -43,6 +44,7 @@ struct task {
 };
 
 bool process_ch_visual(int ch);
+bool process_ch_move(int ch);
 bool process_ch_normal(int ch);
 
 void update_scroll();
@@ -50,12 +52,13 @@ bool has_expanded_root();
 void update_tasks();
 
 struct task *create_task(char *name);
+void rename_task(struct task *task, char *name);
 void destroy_task(struct task *task);
 void link_next(struct task *from, struct task *to);
 void link_child(struct task *from, struct task *to);
 
 void load_json_from_file();
-void save_task_to_file();
+void save_task_to_file(bool autosave);
 void task_to_json();
 void json_to_task();
 
@@ -63,11 +66,13 @@ struct task *root_task = NULL;
 struct task *selected_task = NULL;
 cJSON *task_json = NULL;
 
-int scroll_amount = 5;
+int scroll_amount = 0;
 bool expanded_root = false;
 char error_msg[512];
+char feedback_msg[512];
 char buffer[256];
 bool visual_mode = true;
+bool move_mode = false;
 
 typedef union {
         int i;
@@ -111,7 +116,7 @@ int main(int argc, char *argv[]) {
 
 	if(root_task == NULL) {
 		root_task = create_task("Main");
-		save_task_to_file();
+		save_task_to_file(false);
 	}
 
 	for(struct task *curr_task = root_task; curr_task != NULL; curr_task = curr_task->next) {
@@ -126,12 +131,21 @@ int main(int argc, char *argv[]) {
 		
 		bool redraw = false;
 
+		if(feedback_msg[0] != '\0') {
+			redraw = true;
+			memset(feedback_msg, '\0', 512);
+		}
+
 		if(ch == KEY_RESIZE) {
 			setup_windows();
 		} else if(visual_mode) {
-			redraw = process_ch_visual(ch);
+			if(move_mode) {
+				redraw |= process_ch_move(ch);
+			} else {
+				redraw |= process_ch_visual(ch);
+			}
 		} else {
-			redraw = process_ch_normal(ch);
+			redraw |= process_ch_normal(ch);
 		}
 
 		if(redraw) {
@@ -148,7 +162,24 @@ int main(int argc, char *argv[]) {
 bool process_ch_visual(int ch) {
 	bool handled = false;
         const Key *k;
-        for(k = keys; k < END(keys); k++) {
+        for(k = visual_keys; k < END(visual_keys); k++) {
+                if(k->key == ch) {
+                        k->func(&k->arg);
+                        handled = true;
+                }
+        }
+        return handled;
+}
+
+bool process_ch_move(int ch) {
+	if(ch == 27) {
+		move_mode = false;
+		return true;
+	}
+	
+	bool handled = false;
+        const Key *k;
+        for(k = move_keys; k < END(move_keys); k++) {
                 if(k->key == ch) {
                         k->func(&k->arg);
                         handled = true;
@@ -174,7 +205,7 @@ void exec_cmd(int argc, char **argv) {
 
 bool process_ch_normal(int ch) {
 	if(error_msg[0] != '\0') {
-		memset(error_msg, '\0', 256);
+		memset(error_msg, '\0', 512);
 		if(ch == ':' || ch == '/') {
 			buffer[0] = ch;
 			return true;
@@ -187,6 +218,8 @@ bool process_ch_normal(int ch) {
 	} else if(ch >= ' ' && ch <= 'z') {
 		for(int i=0; i<256; i++) {
 			if(buffer[i] == '\0') {
+				if(ch == ':' && i == 1) return false;
+
 				buffer[i] = ch;
 				return true;
 			}
@@ -236,7 +269,9 @@ bool process_ch_normal(int ch) {
 /** Task updating **/
 
 uint32_t get_task_size(struct task* task, struct task* stop_at) {
-	if(task->child == NULL || !task->expanded) return 1;
+	if(task->child == NULL || !task->expanded) {
+		return !expanded_root || !task->is_root;
+	}
 
 	task = task->child;
 
@@ -274,19 +309,46 @@ void update_scroll() {
 		}
 	}
 
+	int scroll_distance = (body.lines-1)/2;
+	if(scroll_distance > EDGE_SCROLL_DISTANCE) scroll_distance = EDGE_SCROLL_DISTANCE;
+
 	if(body.lines <= 1) {
 		scroll_amount = selected_y;
-	} else if(selected_y < scroll_amount+1) {
-		scroll_amount = selected_y-1;
-	} else if(selected_y > scroll_amount+body.lines-2) {
-		scroll_amount = selected_y - body.lines + 2;
+	} else if(selected_y < scroll_amount+scroll_distance) {
+		scroll_amount = selected_y-scroll_distance;
+	} else if(selected_y > scroll_amount+body.lines-1-scroll_distance) {
+		scroll_amount = selected_y - body.lines+1+scroll_distance;
 	}
-	if(scroll_amount < 0) scroll_amount = 0;
-	//TODO: Maybe apply maximum limit to scroll_amount?
+	if(scroll_amount < 0) {
+		scroll_amount = 0;
+	} else {
+		uint32_t max_y = 0;
 
+		expanded_root = has_expanded_root();
+
+		struct task* task = root_task;
+		while(task != NULL) {
+			max_y += get_task_size(task, NULL);
+			task = task->next;
+		}
+
+		if(max_y > body.lines && scroll_amount > max_y-body.lines) {
+			scroll_amount = max_y-body.lines;
+		}
+		
+	}
 }
 
 void update_task(struct task* task, bool root, bool root_expanded, bool *all_selected) {
+	task->highlighted = false;
+	
+	if(move_mode) {
+		task->highlighted = (task->prev != NULL &&
+				         task->prev->highlighted) ||
+				    (task->parent != NULL &&
+				        (task->parent->highlighted || task->parent == selected_task));
+	}
+	
 	if(task->child != NULL) {
 		task->done = true;
 		update_task(task->child, false, root_expanded, &task->done);
@@ -334,6 +396,14 @@ struct task *create_task(char *name) {
 
 	task->expanded = true;
 	return task;
+}
+
+void rename_task(struct task *task, char *name) {
+	free(task->name);
+
+	char *name_cpy = calloc(1, strlen(name)+1);
+	strcpy(name_cpy, name);
+	task->name = name_cpy;
 }
 
 void destroy_task(struct task *task) {
@@ -396,7 +466,12 @@ void load_json_from_file() {
 	}
 }
 
-void save_task_to_file() {
+void save_task_to_file(bool autosave) {
+
+#ifndef AUTOSAVE
+	if(autosave) return;
+#endif
+
 	task_to_json();
 
 	char filelocation[256];
