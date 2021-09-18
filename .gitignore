@@ -1,0 +1,5 @@
+# Object files
+src/*.o
+
+# Binary
+vido
