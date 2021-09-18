@@ -1,5 +1,9 @@
 # vido (vee-doo) - a simple vim-inspired hierachical to-do manager
 
+## Dependencies
+ncurses (arch)
+libncurses5-dev (debian)
+
 ## How to build:
 $ git clone https://github.com/Moulberry/vido  
 $ cd vido  
