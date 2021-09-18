@@ -31,11 +31,11 @@ Enter command mode by typing a colon
 You can return to visual mode pressing ESC  
 
 ## Commands
-:q or quit - Close vido  
+:q or :quit - Close vido  
 :a (task name) - Appends new task as a sibling of the currently selected task  
 :o (task name) - Appends new task as a child of the currently selected task  
 :d - Deletes currently selected task, including all children  
-:r - Renames currenly selected task  
+:r (new name) - Renames currenly selected task  
 :w - Saves the tasks file. This is not necessary with AUTOSAVE enabled  
 
 ## Customization
