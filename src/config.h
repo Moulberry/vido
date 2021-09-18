@@ -33,7 +33,7 @@ static const Key visual_keys[] = {
 
 	{10,		toggle_selected_kb,	{.i = 0}},
 	
-	{'W',		save_kb,		{.v = NULL}},
+//	{'W',		save_kb,		{.v = NULL}},
 //	{'Q',		quit_kb,		{.v = NULL}},
 //	{'D',		delete_seltask_kb,	{.v = NULL}},
 
@@ -65,7 +65,5 @@ static const Command commands[] = {
 	{"o",		append_child_cmd,	{.v = NULL}},
 	{"r",		rename_seltask_cmd,	{.v = NULL}},
 	{"d",		delete_seltask_cmd,	{.v = NULL}},
-#ifndef AUTOSAVE
 	{"w",		save_cmd,		{.v = NULL}}
-#endif
 };

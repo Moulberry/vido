@@ -20,9 +20,10 @@ Vido will not create the folders for you, but it will create the json file
 
 ## Basic usage
 In visual mode, you can select different tasks using the arrow keys or vim keys  
-Pressing L/Right will complete tasks & expand groups  
-Pressing H/Left will uncomplete tasks & unexpand groups  
+Pressing l/Right will complete tasks & expand groups  
+Pressing h/Left will uncomplete tasks & unexpand groups  
 Pressing ENTER will toggle completion & expansion  
+Pressing m will enter "move" mode, allowing tasks to be rearranged using the arrow keys or vim keys  
 
 ## Command basics
 Most of the interaction with the actual todo list is performed with vim-like commands  
@@ -34,6 +35,8 @@ You can return to visual mode pressing ESC
 :a (task name) - Appends new task as a sibling of the currently selected task  
 :o (task name) - Appends new task as a child of the currently selected task  
 :d - Deletes currently selected task, including all children  
+:r - Renames currenly selected task  
+:w - Saves the tasks file. This is not necessary with AUTOSAVE enabled  
 
 ## Customization
 Customizing vido is done through editing source files (like dwm, st, etc.)  
