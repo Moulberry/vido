@@ -1,4 +1,4 @@
-# vido - a simple vim-inspired hierachical to-do manager
+# vido (vee-doo) - a simple vim-inspired hierachical to-do manager
 
 ## How to build:
 $ git clone https://github.com/Moulberry/vido  
@@ -25,15 +25,15 @@ Enter command mode by typing a colon
 You can return to visual mode pressing ESC  
 
 ## Commands
-:q or quit - Close vido
-:a (task name) - Appends new task as a sibling of the currently selected task
-:o (task name) - Appends new task as a child of the currently selected task
+:q or quit - Close vido  
+:a (task name) - Appends new task as a sibling of the currently selected task  
+:o (task name) - Appends new task as a child of the currently selected task  
 :d - Deletes currently selected task, including all children  
 
 ## Customization
-Customizing vido is done through editing source files (like dwm, st, etc.)
+Customizing vido is done through editing source files (like dwm, st, etc.)  
 
-General tweaks and keybinds/commands can be set up in `src/config.h`
-If you wish to add functions to be used by keybinds/commands, it is recommended you put the functions in `src/commands.c`
-Most of the visuals should be customizable through editing `src/render.c`
-If you wish to modify the functionality of the todo-list (eg. scrolling, saving, etc.), edit `src/vido.c`
+General tweaks and keybinds/commands can be set up in `src/config.h`  
+If you wish to add functions to be used by keybinds/commands, it is recommended you put the functions in `src/commands.c`  
+Most of the visuals should be customizable through editing `src/render.c`  
+If you wish to modify the functionality of the todo-list (eg. scrolling, saving, etc.), edit `src/vido.c`  
