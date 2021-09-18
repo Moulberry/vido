@@ -1,6 +1,7 @@
 # vido (vee-doo) - a simple vim-inspired hierachical to-do manager
 
 ## Dependencies
+NCURSES should usually come pre-installed on your distribution, if it is not, try installing:  
 ncurses (arch)  
 libncurses5-dev (debian)  
 
