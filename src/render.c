@@ -65,7 +65,7 @@ void render_controls() {
 
 		if(feedback_msg[0] != '\0') {
 			wmove(controls.window, 0, controls.cols - strlen(feedback_msg));
-			wprintw(controls.window, feedback_msg);
+			wprintw(controls.window, "%s", feedback_msg);
 		}
         } else {
                 if(error_msg[0] != '\0') {
@@ -74,14 +74,14 @@ void render_controls() {
                         wprintw(controls.window, error_msg);
                         wattroff(controls.window, COLOR_PAIR(2));
                 } else {
-                        wprintw(controls.window, buffer);
+                        wprintw(controls.window, "%s", buffer);
                         wattron(controls.window, COLOR_PAIR(1));
                         waddch(controls.window, ' ');
                         wattroff(controls.window, COLOR_PAIR(1));
 
 			if(feedback_msg[0] != '\0') {
 				wmove(controls.window, 0, controls.cols - strlen(feedback_msg));
-				wprintw(controls.window, feedback_msg);
+				wprintw(controls.window, "%s", feedback_msg);
 			}
                 }
 
